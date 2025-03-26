@@ -1,3 +1,4 @@
+"""configurations for the app"""
 import os
 
 AZURE_STORAGE_CONNECTION_STRING = os.getenv(
@@ -6,6 +7,8 @@ AZURE_STORAGE_CONNECTION_STRING = os.getenv(
 USER_TABLE_NAME = "UserTable"
 LEAKED_RECORD_TABLE_NAME = "LeakedRecordTable"
 
+
+SCIM_BASE_URL = "/scim/v2"
 
 BASE_URL = "https://demo.cyberluminar.com"
 
