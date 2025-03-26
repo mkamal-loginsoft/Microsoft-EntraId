@@ -1,0 +1,238 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "WebAppName": {
+      "type": "string",
+      "defaultValue": "Luminar Entra ID",
+      "minLength": 2,
+      "metadata": {
+        "description": "Luminar Entra ID "
+      }
+    },
+    "RepositoryUrl": {
+      "type": "string",
+      "defaultValue": " ",
+      "metadata": {
+        "description": "Git Repo URL"
+      }
+    },
+    "ApplicationID": {
+      "type": "string",
+      "defaultValue": "<EntraID App Registration ApplicationID>",
+      "minLength": 1,
+      "metadata": {
+        "description": "Application ID for authentication."
+      }
+    },
+    "ClientSecret": {
+      "type": "secureString",
+      "defaultValue": "<EntraID App Registration Client Secret>",
+      "minLength": 1,
+      "metadata": {
+        "description": "Client secret for authentication."
+      }
+    },
+    "TenantID": {
+      "type": "string",
+      "defaultValue": "<MS EntraID Tenant Id>",
+      "minLength": 1,
+      "metadata": {
+        "description": "Enter Azure Tenant Id of your Azure Active Directory."
+      }
+    },
+    "Admin Username": {
+      "type": "string",
+      "defaultValue": "7",
+      "metadata": {
+        "description": "Admin USername with whose account the email should be sent."
+      }
+	},
+    "Force Change Password On Next SignIn": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": ""
+      }
+    },
+	"Notify User Via Email": {
+      "type": "bool",
+
+      "defaultValue": true,
+      "metadata": {
+        "description": ""
+      }
+    },
+	"Admins Emails": {
+      "type": "string",
+      "defaultValue": "admin@admin.com",
+      "metadata": {
+        "description": ""
+      }
+    },
+    "Azure Storage Connection String": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Enter Connection String of Your Storage Account."
+      }
+    },
+	"Log Analytics WorkspaceID": {
+      "type": "secureString",
+      "defaultValue": "<Log Analytics WorkspaceID>",
+      "minLength": 1,
+      "metadata": {
+        "description": "Azure Log Analytics WorkspaceID."
+      }
+    },
+    "Log Analytics WorkspaceKey": {
+      "type": "secureString",
+      "defaultValue": "<Log Analytics Primary/secondary Key>",
+      "minLength": 1,
+      "metadata": {
+        "description": "Log Analytics Primary/secondary Key."
+      }
+    },
+    "Luminar API ClientID": {
+      "type": "string",
+      "defaultValue": "<Luminar API Client ID>",
+      "minLength": 1,
+      "metadata": {
+        "description": "Client ID for Luminar API."
+      }
+    },
+    "Luminar API AccountID": {
+      "type": "string",
+      "defaultValue": "<Luminar API Account ID>",
+      "minLength": 1,
+      "metadata": {
+        "description": "Account ID for Luminar API."
+      }
+    },
+    "Luminar API ClientSecret": {
+      "type": "secureString",
+      "defaultValue": "<Luminar API Client Secret>",
+      "minLength": 1,
+      "metadata": {
+        "description": "Client secret for Luminar API."
+      }
+    },
+    "Luminar Intial Fetch Date": {
+      "type": "string",
+      "defaultValue": "7",
+      "metadata": {
+        "description": "initial data fetch date."
+      }
+    },
+	"TimeInterval": {
+      "type": "string",
+      "allowedValues": [
+        "Every 5 min",
+        "Every 10 min",
+        "Every 60 min",
+        "Every 6 hours",
+        "Every 12 hours",
+        "Every 24 hours"
+      ],
+      "defaultValue": "Every 6 hours",
+      "metadata": {
+        "description": "Select the desired execution interval."
+      }
+    }
+  },
+  "variables": {
+    "appServicePlanPortalName": "[format('AppServicePlan-{0}', parameters('webAppName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('appServicePlanPortalName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('sku')]"
+      },
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "[parameters('webAppName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "httpsOnly": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]",
+        "siteConfig": {
+          "linuxFxVersion": "[parameters('linuxFxVersion')]",
+          "minTlsVersion": "1.2",
+          "ftpsState": "FtpsOnly",
+          "appSettings": [
+            {
+              "name": "TenantID",
+              "value": "[parameters('TenantID')]"
+            },
+            {
+              "name": "ApplicationID",
+              "value": "[parameters('ApplicationID')]"
+            },
+            {
+              "name": "ClientSecret",
+              "value": "[parameters('ClientSecret')]"
+            },
+            {
+              "name": "AzureStorageConnectionString",
+              "value": "[parameters('AzureStorageConnectionString')]"
+            },
+            {
+              "name": "LuminarAPIClientID",
+              "value": "[parameters('LuminarAPIClientID')]"
+            },
+            {
+              "name": "LuminarAPIAccountID",
+              "value": "[parameters('LuminarAPIAccountID')]"
+            },
+            {
+              "name": "LuminarAPIClientSecret",
+              "value": "[parameters('LuminarAPIClientSecret')]"
+            },
+            {
+              "name": "InitialFetchDurationDays",
+              "value": "[parameters('InitialFetchDurationDays')]"
+            },
+            {
+              "name": "ResetUserPassword",
+              "value": "[parameters('ResetUserPassword')]"
+            },
+            {
+              "name": "TimeInterval",
+              "value": "[parameters('TimeInterval')]"
+            }
+          ]
+        }
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]"
+      ]
+    },
+    {
+      "condition": "[contains(parameters('repoUrl'), 'http')]",
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "apiVersion": "2021-02-01",
+      "name": "[format('{0}/{1}', parameters('webAppName'), 'web')]",
+      "properties": {
+        "repoUrl": "[parameters('repoUrl')]",
+        "branch": "master",
+        "isManualIntegration": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+      ]
+    }
+  ]
+}

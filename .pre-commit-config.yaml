@@ -1,0 +1,67 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 'v4.6.0'
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: debug-statements
+      - id: name-tests-test
+      - id: requirements-txt-fixer
+
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: 'v5.10.1'
+    hooks:
+      - id: isort
+        args: ['--profile', 'black']
+
+  - repo: https://github.com/psf/black
+    rev: '24.8.0'
+    hooks:
+      - id: black
+        args: ['--check']
+
+  - repo: https://github.com/pre-commit/mirrors-pylint
+    rev: 'v3.0.0a5'
+    hooks:
+      - id: pylint
+        args: ['--ignore=test', '--fail-under=8']
+        exclude: framework/test/.*
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: '1.7.10'
+    hooks:
+      - id: bandit
+        args: ['--exclude', 'test', '-r', '.']
+
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: 'v2.12'
+    hooks:
+      - id: vulture
+        args: ['--exclude', 'framework/test' , '.']
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.11.2'
+    hooks:
+      - id: mypy
+        args: ['--exclude', 'test', '.']
+
+  # Adding pytest
+  - repo: local
+    hooks:
+    - id: pytest-check
+      name: pytest-check
+      stages: [ commit ]
+      types: [ python ]
+      entry: pytest
+      language: system
+      pass_filenames: false
+      always_run: true
+
+    - id: pytest-cov
+      name: pytest
+      stages: [ push ]
+      language: system
+      entry: pytest --cov --cov-fail-under=70
+      types: [ python ]
+      pass_filenames: false

@@ -1,0 +1,6 @@
+azure-data-tables
+flask
+msal
+azure-identity
+azure-mgmt-web
+azure-monitor-ingestion
